@@ -2,6 +2,12 @@
 一、添加权限：
 <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
 
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="framework.com.keydownapp"
+    android:versionName="abc"
+    android:versionCode="xxyy">   version code , version name should set properly.
+
+
 二、应用签名：
 platform或者应用预置在system/priv-app即可拿到如上权限。
 
