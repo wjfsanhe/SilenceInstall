@@ -1,0 +1,67 @@
+
+一、添加权限：
+<uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
+
+二、应用签名：
+platform或者应用预置在system/priv-app即可拿到如上权限。
+
+三、添加接口：
+QiyiPackageInstallObserver.java   //此借口必须保存在/android/app目录下才能生效。
+
+四、demo：
+void main(){
+    String fileName = "/sdcard/001.apk";
+    InstallObserver installObserver = new InstallObserver();
+    int flags = 0x00000002;//覆盖安装
+    installPackage(fileName,installObserver,flags);
+}
+
+
+private void installPackage(String fileName,QiyiPackageInstallObserver observer,int flags){
+    if(TextUtils.isEmpty(fileName)){
+        Log.e(TAG,"installPackage : fileName is "+fileName);
+        return;
+    }
+    if(observer==null){
+        Log.e(TAG,"installPackage : observer is null");
+        return;
+    }
+    PackageManager mPm = getPackageManager();
+    Class clazz = mPm.getClass();
+    Method m1 = null;
+    try {
+        Uri packageURI = Uri.fromFile(new File(fileName));
+        String installerPackageName = getPackageName();
+        Class<?> c;
+        c = Class.forName("android.app.ApplicationPackageManager");
+        Class[] cl = new Class[4];
+        cl[0] = Uri.class;
+        cl[1] = QiyiPackageInstallObserver.class;
+        cl[2] = int.class;
+        cl[3] = String.class;
+        Method installPackageSlient = c.getMethod("installPackage",cl);
+
+        Object[] params = new Object[4];
+        File apkFile = new File(fileName);
+        params[0] = Uri.fromFile(apkFile);
+        params[1] = observer;
+        params[2] = flags;
+        params[3] = new String(installerPackageName);
+        installPackageSlient.invoke(getPackageManager(),params);
+    } catch (NoSuchMethodException e) {
+        Log.e(TAG,"installPackage : NoSuchMethodException : "+e.getMessage());
+        e.printStackTrace();
+        return;
+    } catch (IllegalAccessException e) {
+        Log.e(TAG,"installPackage : IllegalAccessException : "+e.getMessage());
+        e.printStackTrace();
+        return;
+    } catch (InvocationTargetException e) {
+        Log.e(TAG,"installPackage : InvocationTargetException : "+e.getMessage());
+        e.printStackTrace();
+        return;
+    } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+    }
+}
+
